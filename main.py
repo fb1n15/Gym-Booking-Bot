@@ -12,12 +12,12 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 def login(username, pw, driver):
     WebDriverWait(driver, 2).until(
-        EC.element_to_be_clickable((By.ID, 'ctl00_MainContent_InputLogin'))
+        EC.element_to_be_clickable((By.ID, 'loginUsername'))
         ).send_keys(username)
 
-    driver.find_element_by_id('ctl00_MainContent_InputPassword').send_keys(pw)
+    driver.find_element_by_id('loginPassword').send_keys(pw)
 
-    driver.find_element_by_id('ctl00_MainContent_btnLogin').click()
+    driver.find_element_by_css_selector('#fm1 > div.form-group.text-center.submit-box > button').click()
     WebDriverWait(driver, 5)
 
 
@@ -41,9 +41,10 @@ def main(gym_time):
 
     driver = webdriver.Chrome(ChromeDriverManager().install())
 
-    driver.get("https://soton.leisurecloud.net/Connect/mrmlogin.aspx")
+    driver.get("https://sussed.soton.ac.uk/")
 
-    login('fb1n15@soton.ac.uk', 'Fanbi12345', driver)
+    login('fb1n15', 'Fanbi12345', driver)
+    time.sleep(10)
 
 
 # Press the green button in the gutter to run the script.
