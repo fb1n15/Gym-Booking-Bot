@@ -89,7 +89,7 @@ def book(email, slot_time, driver):
             EC.element_to_be_clickable((By.ID,
                                         'idSIButton9'))
             ).click()
-    except Exception:
+    except TimeoutException:
         pass
 
     # click make a booking button
@@ -123,6 +123,11 @@ def book(email, slot_time, driver):
     print(f"local time = {current_time}")
     deadline = "00:05:00"
     sunrise_time = "04:05:00"
+    today = date.today()
+    print("Today's date:", today)
+    booking_date = today + timedelta(days=8)
+    booking_date = booking_date.strftime("%Y/%m/%d")
+    print("Booking date:", booking_date)
 
     while current_time >= sunrise_time or current_time <= deadline:
         try:
@@ -130,7 +135,7 @@ def book(email, slot_time, driver):
             print(f"The time slot trying to book = {slot_time}")
             WebDriverWait(driver, 2).until(
                 EC.element_to_be_clickable((By.ID,
-                                            f"ctl00_MainContent_cal_calbtn{button_index}"))
+                                            f"ctl00_MainContent_cal_calbtn{button_index+1}"))
                 ).click()
         except TimeoutException:
             print("No available slots, we will keep trying until 00:05")
@@ -141,11 +146,7 @@ def book(email, slot_time, driver):
             break
 
     # select the court
-    today = date.today()
-    print("Today's date:", today)
-    booking_date = today + timedelta(days=7)
-    booking_date = today.strftime("%Y/%m/%d")
-    print("Booking date:", booking_date)
+
     for court_index in range(1, 5):
         try:
             if len(slot_time) == 1:

@@ -6,7 +6,7 @@
 
 ## Instructions
 - To run the program: (only tested on macOS)
-  - Go to the `output/main` folder/directory
+  - Go to the `output/main` folder/directory (in Terminal)
   - Please run this command to book badminton courts: `./main <username> <email> <password> <time>`
     - For example `./main fb6n50 fb6n50@soton.ac.uk 12345 15` (if I want to book a court at 15:00 for today one week later)
     - Sorry, if you want to book any courts within 6 days, this program won't help you.
