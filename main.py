@@ -1,6 +1,10 @@
 import time
-import datetime
+from datetime import date
+from datetime import datetime
+from datetime import timedelta
+
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
@@ -115,22 +119,37 @@ def book(slot_time, driver, court_index):
         ).click()
 
     # select the time slot
-    try:
-        button_index = int(int(slot_time) - 7) * 7
-        print(f"button index = {button_index}")
-        WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.ID,
-                                        f"ctl00_MainContent_cal_calbtn{button_index}"))
-            ).click()
-    except ValueError:
-        print("No available slots")
-        exit()
+    current_time = datetime.strftime(datetime.now(), "%H:%M:%S")
+    print(f"local time = {current_time}")
+    deadline = "00:05:00"
+    sunrise_time = "04:05:00"
+
+    while current_time >= sunrise_time or current_time <= deadline:
+        try:
+            button_index = int(int(slot_time) - 7) * 7
+            print(f"The time slot trying to book = {slot_time}")
+            WebDriverWait(driver, 2).until(
+                EC.element_to_be_clickable((By.ID,
+                                            f"ctl00_MainContent_cal_calbtn{button_index}"))
+                ).click()
+        except TimeoutException:
+            print("No available slots, we will keep trying until 00:05")
+            current_time = datetime.strftime(datetime.now(), "%H:%M:%S")
+            print(f"Current local time = {current_time}")
+            driver.refresh()
+        else:
+            break
 
     # select the court
+    today = date.today()
+    print("Today's date:", today)
+    booking_date = today + timedelta(days=7)
+    booking_date = today.strftime("%Y/%m/%d")
+    print("Booking date:", booking_date)
     if len(slot_time) == 1:
         WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR,
-                                        f"input[data-qa-id='button-ActivityID=HIFCASBADM ResourceID=0 Date=2021/10/30 Time=0{slot_time}:00 Availability= Available Court=Jubilee Court {court_index}']"))
+                                        f"input[data-qa-id='button-ActivityID=HIFCASBADM ResourceID=0 Date={booking_date} Time=0{slot_time}:00 Availability= Available Court=Jubilee Court {court_index}']"))
             ).click()
 
     # select the court
@@ -142,20 +161,20 @@ def book(slot_time, driver, court_index):
     else:
         print("Wrong time format")
 
-    # # conform the booking
-    # WebDriverWait(driver, 10).until(
-    #     EC.element_to_be_clickable((By.ID,
-    #                                 "ctl00_MainContent_cal_calbtn1"))
-    #     ).click()
-
-    WebDriverWait(driver, 60).until(
-        EC.element_to_be_clickable((By.XPATH,
-                                    '/html/body/div/form[1]/div/div/div[2]/div[1]/div/div/div/div/div/div[3]/div/div[2]/div/div[3]/div/div[2]/input'))
-        ).send_keys('Fanbi12345')
+    # conform the booking
+    try:
+        WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.ID,
+                                        "ctl00_MainContent_btnBasket"))
+            ).click()
+    except TimeoutException:
+        print("Fail to book the slot, you could try run the program again.")
+    else:
+        print("Successfully robbed the badminton court!!!")
 
 
 def main(username, password, slot_time, court_index):
-    t = datetime.datetime.now()
+    t = datetime.now()
     print('[STARTING] Signing up for {} gym slot on {} at {}'.format(slot_time,
                                                                      t.strftime('%m:%d'),
                                                                      t.strftime('%H:%M')))
@@ -179,7 +198,6 @@ if __name__ == '__main__':
     parser.add_argument('pw', type=str, help='Password')
     parser.add_argument('time', type=str, help='time of the slot')
     parser.add_argument('court_index', type=str, help='court index')
-    # parser.add_argument('time', type=str, help='Select the gym time you want')
 
     args = parser.parse_args()
 
