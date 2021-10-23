@@ -10,6 +10,26 @@ import argparse
 from webdriver_manager.chrome import ChromeDriverManager
 
 
+def login(username, pw, driver):
+    WebDriverWait(driver, 2).until(
+        EC.element_to_be_clickable((By.ID, 'ctl00_MainContent_InputLogin'))
+        ).send_keys(username)
+
+    driver.find_element_by_id('ctl00_MainContent_InputPassword').send_keys(pw)
+
+    driver.find_element_by_id('ctl00_MainContent_btnLogin').click()
+    WebDriverWait(driver, 5)
+
+
+def book(gym_time, driver):
+
+    try:
+        # Selects gym slot register button with corresponding time
+        driver.find_element_by_id('ctl00_ctl11_SearchTextBox').send_keys('Badminton 55 Mins')
+    except:
+        raise Exception('Cannot search Badminton 55 Mins slots')
+
+
 def main(gym_time):
     t = datetime.datetime.now()
     print('[STARTING] Signing up for {} gym slot on {} at {}'.format(gym_time,
@@ -22,6 +42,8 @@ def main(gym_time):
     driver = webdriver.Chrome(ChromeDriverManager().install())
 
     driver.get("https://soton.leisurecloud.net/Connect/mrmlogin.aspx")
+
+    login('fb1n15@soton.ac.uk', 'Fanbi12345', driver)
 
 
 # Press the green button in the gutter to run the script.
