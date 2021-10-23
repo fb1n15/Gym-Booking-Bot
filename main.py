@@ -13,7 +13,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 
 def login(username, pw, driver):
-    WebDriverWait(driver, 5).until(
+    WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.ID, 'loginUsername'))
         ).send_keys(username)
 
@@ -21,11 +21,11 @@ def login(username, pw, driver):
 
     driver.find_element_by_css_selector(
         '#fm1 > div.form-group.text-center.submit-box > button').click()
-    WebDriverWait(driver, 5)
+    WebDriverWait(driver, 10)
 
 
 def book(gym_time, driver):
-    WebDriverWait(driver, 5).until(
+    WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH,
                                     '//*[@id="_TargetedContent_WAR_luminis_INSTANCE_7auCc2KRa4O0_TCBlockPanel"]/div[3]/div/div/div/div/div/div/div/div[20]/div/div/p/a'))
         ).click()
@@ -50,7 +50,7 @@ def book(gym_time, driver):
     print("Current window title: " + driver.title)
 
     try:
-        WebDriverWait(driver, 5).until(
+        WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, '/html/body/div/nav/div/a'))
             ).click()
     except Exception:
@@ -59,7 +59,7 @@ def book(gym_time, driver):
 
     print("Current window title: " + driver.title)
     # input the username
-    WebDriverWait(driver, 5).until(
+    WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.NAME,
                                     'loginfmt'))
         ).send_keys('fb1n15@soton.ac.uk')
@@ -68,20 +68,20 @@ def book(gym_time, driver):
     driver.find_element_by_id('idSIButton9').click()
 
     # input the password
-    WebDriverWait(driver, 5).until(
+    WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.NAME,
                                     'passwd'))
         ).send_keys('Fanbi12345')
 
     # click the next button
-    WebDriverWait(driver, 5).until(
+    WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.ID,
                                     'idSIButton9'))
         ).click()
 
     # in case for the stay signed in page
     try:
-        WebDriverWait(driver, 5).until(
+        WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.ID,
                                         'idSIButton9'))
             ).click()
@@ -90,12 +90,46 @@ def book(gym_time, driver):
 
     # click make a booking button
     # input the password
-    WebDriverWait(driver, 5).until(
+    WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH,
                                     "/html/body/div/main/div/div/div[2]/div/div[2]/form/input[2]"))
         ).click()
 
     print("Current window title: " + driver.title)
+
+    # Search for badminton courts
+    WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.ID,
+                                    "ctl00_ctl11_SearchTextBox"))
+        ).send_keys('Badminton 55 Mins')
+
+    WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.ID,
+                                    "ctl00_ctl11_SearchButton1"))
+        ).click()
+
+    # move to next week
+    WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.ID,
+                                    "ctl00_MainContent_dateForward1"))
+        ).click()
+
+    # select the time slot
+    WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.ID,
+                                    "ctl00_MainContent_cal_calbtn0"))
+        ).click()
+
+    # select the court
+    WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                    "input[data-qa-id='button-ActivityID=HIFCASBADM ResourceID=0 Date=2021/10/30 Time=07:00 Availability= Available Court=Jubilee Court 1']"))
+        ).click()
+
+
+
+
+    
 
     WebDriverWait(driver, 60).until(
         EC.element_to_be_clickable((By.XPATH,
