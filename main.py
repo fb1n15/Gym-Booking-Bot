@@ -24,7 +24,7 @@ def login(username, pw, driver):
     WebDriverWait(driver, 10)
 
 
-def book(gym_time, driver):
+def book(slot_time, driver):
     WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH,
                                     '//*[@id="_TargetedContent_WAR_luminis_INSTANCE_7auCc2KRa4O0_TCBlockPanel"]/div[3]/div/div/div/div/div/div/div/div[20]/div/div/p/a'))
@@ -115,10 +115,16 @@ def book(gym_time, driver):
         ).click()
 
     # select the time slot
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.ID,
-                                    "ctl00_MainContent_cal_calbtn0"))
-        ).click()
+    try:
+        button_index = int(int(slot_time) - 7) * 7
+        print(f"button index = {button_index}")
+        WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.ID,
+                                        f"ctl00_MainContent_cal_calbtn{button_index}"))
+            ).click()
+    except ValueError:
+        print("No available slots")
+        exit()
 
     # select the court
     WebDriverWait(driver, 10).until(
@@ -132,21 +138,15 @@ def book(gym_time, driver):
     #                                 "ctl00_MainContent_cal_calbtn1"))
     #     ).click()
 
-
-
-
-
-    
-
     WebDriverWait(driver, 60).until(
         EC.element_to_be_clickable((By.XPATH,
                                     '/html/body/div/form[1]/div/div/div[2]/div[1]/div/div/div/div/div/div[3]/div/div[2]/div/div[3]/div/div[2]/input'))
         ).send_keys('Fanbi12345')
 
 
-def main(username, gym_time):
+def main(username, password, slot_time):
     t = datetime.datetime.now()
-    print('[STARTING] Signing up for {} gym slot on {} at {}'.format(gym_time,
+    print('[STARTING] Signing up for {} gym slot on {} at {}'.format(slot_time,
                                                                      t.strftime('%m:%d'),
                                                                      t.strftime('%H:%M')))
 
@@ -157,8 +157,8 @@ def main(username, gym_time):
 
     driver.get("https://sussed.soton.ac.uk/")
 
-    login(username, 'Fanbi12345', driver)
-    book(17, driver)
+    login(username, password, driver)
+    book(slot_time, driver)
 
 
 # Press the green button in the gutter to run the script.
@@ -166,13 +166,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('username', type=str, help='Username')
+    parser.add_argument('pw', type=str, help='Password')
     parser.add_argument('time', type=str, help='time of the slot')
-    # parser.add_argument('pw', type=str, help='Password')
     # parser.add_argument('floor', type=str, help='Select the gym floor you want')
     # parser.add_argument('time', type=str, help='Select the gym time you want')
 
     args = parser.parse_args()
 
-    main(args.username, args.time)
+    main(args.username, args.pw, args.time)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
