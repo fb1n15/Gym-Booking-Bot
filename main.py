@@ -28,7 +28,7 @@ def login(username, pw, driver):
     WebDriverWait(driver, 10)
 
 
-def book(slot_time, driver, court_index):
+def book(email, slot_time, driver):
     WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH,
                                     '//*[@id="_TargetedContent_WAR_luminis_INSTANCE_7auCc2KRa4O0_TCBlockPanel"]/div[3]/div/div/div/div/div/div/div/div[20]/div/div/p/a'))
@@ -66,7 +66,7 @@ def book(slot_time, driver, court_index):
     WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.NAME,
                                     'loginfmt'))
-        ).send_keys('fb1n15@soton.ac.uk')
+        ).send_keys(f'{email}')
 
     # click the next button
     driver.find_element_by_id('idSIButton9').click()
@@ -146,20 +146,27 @@ def book(slot_time, driver, court_index):
     booking_date = today + timedelta(days=7)
     booking_date = today.strftime("%Y/%m/%d")
     print("Booking date:", booking_date)
-    if len(slot_time) == 1:
-        WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR,
-                                        f"input[data-qa-id='button-ActivityID=HIFCASBADM ResourceID=0 Date={booking_date} Time=0{slot_time}:00 Availability= Available Court=Jubilee Court {court_index}']"))
-            ).click()
+    for court_index in range(1, 5):
+        try:
+            if len(slot_time) == 1:
+                WebDriverWait(driver, 1).until(
+                    EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                                f"input[data-qa-id='button-ActivityID=HIFCASBADM ResourceID=0 Date={booking_date} Time=0{slot_time}:00 Availability= Available Court=Jubilee Court {court_index}']"))
+                    ).click()
 
-    # select the court
-    elif len(slot_time) == 2:
-        WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR,
-                                        f"input[data-qa-id='button-ActivityID=HIFCASBADM ResourceID=0 Date=2021/10/30 Time={slot_time}:00 Availability= Available Court=Jubilee Court {court_index}']"))
-            ).click()
-    else:
-        print("Wrong time format")
+            elif len(slot_time) == 2:
+                WebDriverWait(driver, 1).until(
+                    EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                                f"input[data-qa-id='button-ActivityID=HIFCASBADM ResourceID=0 Date=2021/10/30 Time={slot_time}:00 Availability= Available Court=Jubilee Court {court_index}']"))
+                    ).click()
+            else:
+                print(
+                    "Wrong slot time format, input 19 if you want to book a 7 p.m. court")
+        except TimeoutException:
+            print(f"Try  court {court_index}.")
+            continue
+        else:
+            break
 
     # conform the booking
     try:
@@ -170,15 +177,11 @@ def book(slot_time, driver, court_index):
     except TimeoutException:
         print("Fail to book the slot, you could try run the program again.")
     else:
-        print("Successfully robbed the badminton court!!!")
+        print(f"Successfully robbed the badminton court (court {court_index})!!!")
 
 
-def main(username, password, slot_time, court_index):
-    t = datetime.now()
-    print('[STARTING] Signing up for {} gym slot on {} at {}'.format(slot_time,
-                                                                     t.strftime('%m:%d'),
-                                                                     t.strftime('%H:%M')))
-
+def main(username, email, password, slot_time):
+    print("Let's book a badminton court. 🐶")
     options = webdriver.ChromeOptions()
     options.add_argument('headless')  # comment out to toggle headless mode
 
@@ -187,7 +190,7 @@ def main(username, password, slot_time, court_index):
     driver.get("https://sussed.soton.ac.uk/")
 
     login(username, password, driver)
-    book(slot_time, driver, court_index)
+    book(email, slot_time, driver)
 
 
 # Press the green button in the gutter to run the script.
@@ -195,12 +198,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('username', type=str, help='Username')
+    parser.add_argument('email', type=str, help='university email')
     parser.add_argument('pw', type=str, help='Password')
     parser.add_argument('time', type=str, help='time of the slot')
-    parser.add_argument('court_index', type=str, help='court index')
 
     args = parser.parse_args()
 
-    main(args.username, args.pw, args.time, args.court_index)
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    main(args.username, args.email, args.pw, args.time)
