@@ -126,6 +126,13 @@ def book(gym_time, driver):
                                     "input[data-qa-id='button-ActivityID=HIFCASBADM ResourceID=0 Date=2021/10/30 Time=07:00 Availability= Available Court=Jubilee Court 1']"))
         ).click()
 
+    # # conform the booking
+    # WebDriverWait(driver, 10).until(
+    #     EC.element_to_be_clickable((By.ID,
+    #                                 "ctl00_MainContent_cal_calbtn1"))
+    #     ).click()
+
+
 
 
 
@@ -137,7 +144,7 @@ def book(gym_time, driver):
         ).send_keys('Fanbi12345')
 
 
-def main(gym_time):
+def main(username, gym_time):
     t = datetime.datetime.now()
     print('[STARTING] Signing up for {} gym slot on {} at {}'.format(gym_time,
                                                                      t.strftime('%m:%d'),
@@ -150,12 +157,22 @@ def main(gym_time):
 
     driver.get("https://sussed.soton.ac.uk/")
 
-    login('fb1n15', 'Fanbi12345', driver)
+    login(username, 'Fanbi12345', driver)
     book(17, driver)
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    main(2)
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('username', type=str, help='Username')
+    parser.add_argument('time', type=str, help='time of the slot')
+    # parser.add_argument('pw', type=str, help='Password')
+    # parser.add_argument('floor', type=str, help='Select the gym floor you want')
+    # parser.add_argument('time', type=str, help='Select the gym time you want')
+
+    args = parser.parse_args()
+
+    main(args.username, args.time)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
