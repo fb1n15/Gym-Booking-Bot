@@ -28,7 +28,7 @@ def login(username, pw, driver):
     WebDriverWait(driver, 10)
 
 
-def book(email, slot_time, driver):
+def book(email, days_in_future, slot_time, driver):
     WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH,
                                     '//*[@id="_TargetedContent_WAR_luminis_INSTANCE_7auCc2KRa4O0_TCBlockPanel"]/div[3]/div/div/div/div/div/div/div/div[20]/div/div/p/a'))
@@ -112,12 +112,6 @@ def book(email, slot_time, driver):
                                     "ctl00_ctl11_SearchButton1"))
         ).click()
 
-    # move to next week
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.ID,
-                                    "ctl00_MainContent_dateForward1"))
-        ).click()
-
     # select the time slot
     current_time = datetime.strftime(datetime.now(), "%H:%M:%S")
     print(f"local time = {current_time}")
@@ -125,18 +119,74 @@ def book(email, slot_time, driver):
     sunrise_time = "04:05:00"
     today = date.today()
     print("Today's date:", today)
-    booking_date = today + timedelta(days=8)
+    booking_date = today + timedelta(days=days_in_future)
     booking_date = booking_date.strftime("%Y/%m/%d")
     print("Booking date:", booking_date)
 
+    # move to next week if days_in_futre > 6
+    if days_in_future > 6:
+        WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.ID,
+                                        "ctl00_MainContent_dateForward1"))
+            ).click()
+
+        time.sleep(2)
+        print("Must go to next page.")
+    else:
+        print("Don't need to go to next page.")
+
     while current_time >= sunrise_time or current_time <= deadline:
         try:
-            button_index = int(int(slot_time) - 7) * 7
+            if days_in_future <= 6:
+                button_index = int(int(slot_time) - 7) * 7 + days_in_future
+            else:  # because the calendar go to the next page.
+                button_index = int(int(slot_time) - 7) * 7 + days_in_future - 7
+
             print(f"The time slot trying to book = {slot_time}")
             WebDriverWait(driver, 2).until(
                 EC.element_to_be_clickable((By.ID,
-                                            f"ctl00_MainContent_cal_calbtn{button_index+1}"))
+                                            f"ctl00_MainContent_cal_calbtn{button_index}"))
                 ).click()
+
+            # select the court
+
+            for court_index in range(1, 5):
+                try:
+                    if len(slot_time) == 1:
+                        WebDriverWait(driver, 1).until(
+                            EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                                        f"input[data-qa-id='button-ActivityID=HIFCASBADM ResourceID=0 Date={booking_date} Time=0{slot_time}:00 Availability= Available Court=Jubilee Court {court_index}']"))
+                            ).click()
+
+                    elif len(slot_time) == 2:
+                        print("data-qa-id:")
+                        print(
+                            f"input[data-qa-id='button-ActivityID=HIFCASBADM ResourceID=0 Date={booking_date} Time={slot_time}:00 Availability= Available Court=Jubilee Court {court_index}']")
+                        WebDriverWait(driver, 1).until(
+                            EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                                        f"input[data-qa-id='button-ActivityID=HIFCASBADM ResourceID=0 Date={booking_date} Time={slot_time}:00 Availability= Available Court=Jubilee Court {court_index}']"))
+                            ).click()
+                    else:
+                        print(
+                            "Wrong slot time format, input 19 if you want to book a 7 p.m. court")
+                except TimeoutException:
+                    print(f"Fail to book court {court_index}.")
+                    print(f"Try court {court_index + 1}.")
+                    continue
+                else:
+                    break
+
+            # conform the booking
+            try:
+                WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable((By.ID,
+                                                "ctl00_MainContent_btnBasket"))
+                    ).click()
+
+            except TimeoutException:
+                print("Fail to book the slot, you could try run the program again.")
+            else:
+                print(f"Successfully robbed the badminton court (court {court_index})!!!")
         except TimeoutException:
             print("No available slots, we will keep trying until 00:05")
             current_time = datetime.strftime(datetime.now(), "%H:%M:%S")
@@ -145,44 +195,14 @@ def book(email, slot_time, driver):
         else:
             break
 
-    # select the court
-
-    for court_index in range(1, 5):
-        try:
-            if len(slot_time) == 1:
-                WebDriverWait(driver, 1).until(
-                    EC.element_to_be_clickable((By.CSS_SELECTOR,
-                                                f"input[data-qa-id='button-ActivityID=HIFCASBADM ResourceID=0 Date={booking_date} Time=0{slot_time}:00 Availability= Available Court=Jubilee Court {court_index}']"))
-                    ).click()
-
-            elif len(slot_time) == 2:
-                WebDriverWait(driver, 1).until(
-                    EC.element_to_be_clickable((By.CSS_SELECTOR,
-                                                f"input[data-qa-id='button-ActivityID=HIFCASBADM ResourceID=0 Date=2021/10/30 Time={slot_time}:00 Availability= Available Court=Jubilee Court {court_index}']"))
-                    ).click()
-            else:
-                print(
-                    "Wrong slot time format, input 19 if you want to book a 7 p.m. court")
-        except TimeoutException:
-            print(f"Fail to book court {court_index}.")
-            print(f"Try court {court_index + 1}.")
-            continue
-        else:
-            break
-
-    # conform the booking
-    try:
-        WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.ID,
-                                        "ctl00_MainContent_btnBasket"))
-            ).click()
-    except TimeoutException:
-        print("Fail to book the slot, you could try run the program again.")
-    else:
-        print(f"Successfully robbed the badminton court (court {court_index})!!!")
+    # wait for a while
+    WebDriverWait(driver, 180).until(
+        EC.element_to_be_clickable((By.ID,
+                                    "ctl00_MainContent_btnBasket"))
+        ).click()
 
 
-def main(username, email, password, slot_time):
+def main(username, email, password, days_in_future, slot_time):
     print("Let's book a badminton court. 🐶")
     options = webdriver.ChromeOptions()
     options.add_argument('headless')  # comment out to toggle headless mode
@@ -192,7 +212,7 @@ def main(username, email, password, slot_time):
     driver.get("https://sussed.soton.ac.uk/")
 
     login(username, password, driver)
-    book(email, slot_time, driver)
+    book(email, days_in_future, slot_time, driver)
 
 
 # Press the green button in the gutter to run the script.
@@ -202,8 +222,10 @@ if __name__ == '__main__':
     parser.add_argument('username', type=str, help='Username')
     parser.add_argument('email', type=str, help='university email')
     parser.add_argument('pw', type=str, help='Password')
+    parser.add_argument('days_in_future', type=int,
+                        help='Which date to book, e.g., 7 days later')
     parser.add_argument('time', type=str, help='time of the slot')
 
     args = parser.parse_args()
 
-    main(args.username, args.email, args.pw, args.time)
+    main(args.username, args.email, args.pw, args.days_in_future, args.time)
