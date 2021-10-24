@@ -196,10 +196,13 @@ def book(email, days_in_future, slot_time, driver):
             break
 
     # wait for a while
-    WebDriverWait(driver, 180).until(
-        EC.element_to_be_clickable((By.ID,
-                                    "ctl00_MainContent_btnBasket"))
-        ).click()
+    try:
+        WebDriverWait(driver, 180).until(
+            EC.element_to_be_clickable((By.ID,
+                                        "ctl00_MainContent_btnBasket"))
+            ).click()
+    except TimeoutException:
+        print("Good Bye")
 
 
 def main(username, email, password, days_in_future, slot_time):
