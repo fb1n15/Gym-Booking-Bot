@@ -141,7 +141,7 @@ def book(email, days_in_future, slot_time, driver):
                 button_index = int(int(slot_time) - 7) * 7 + days_in_future
             else:  # because the calendar go to the next page.
                 button_index = int(int(slot_time) - 7) * 7 + days_in_future - 7
-
+            print(f"The date trying to book = {booking_date}")
             print(f"The time slot trying to book = {slot_time}")
             WebDriverWait(driver, 2).until(
                 EC.element_to_be_clickable((By.ID,
