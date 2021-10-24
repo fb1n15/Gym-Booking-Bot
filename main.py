@@ -164,7 +164,8 @@ def book(email, slot_time, driver):
                 print(
                     "Wrong slot time format, input 19 if you want to book a 7 p.m. court")
         except TimeoutException:
-            print(f"Try  court {court_index}.")
+            print(f"Fail to book court {court_index}.")
+            print(f"Try court {court_index + 1}.")
             continue
         else:
             break
