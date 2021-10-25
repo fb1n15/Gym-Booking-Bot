@@ -16,6 +16,8 @@
     - Please run this command to book badminton courts: `main.exe <day> <time>`
       - For example `main.exe 0 15` (if I want to book a court at 15:00 today) (Normal booking)
       - For example `main.exe 8 7` (if I want to book a court at 7:00 for today one week later) (Use this to rob a court.)
+  - Go to the booking page. (See the following gif)
+    - ![book](https://github.com/fb1n15/Gym-Booking-Bot/blob/manual_login/resources/ezgif.com-gif-maker.gif)
 - Please start the program after 05:00 and before 00:00. 
 - The program will try to book a court at that time (any court) until 00:10 the next day.
 - Please reach out to me if there are any bugs. (There should be many. 😹)
