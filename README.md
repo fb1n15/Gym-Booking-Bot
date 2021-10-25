@@ -20,7 +20,7 @@
 - The program will try to book a court at that time (any court) until 00:10 the next day.
 - Please reach out to me if there are any bugs. (There should be many. 😹)
 
-## Create Executables
+## Create Executables (for my reference)
 ### Create windows executable
 - `pyinstaller --onefile main.py`
 - [Source](https://datatofish.com/executable-pyinstaller/)
