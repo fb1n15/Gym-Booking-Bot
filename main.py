@@ -28,89 +28,41 @@ def login(username, pw, driver):
     WebDriverWait(driver, 10)
 
 
-def book(email, days_in_future, slot_time, driver):
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH,
-                                    '//*[@id="_TargetedContent_WAR_luminis_INSTANCE_7auCc2KRa4O0_TCBlockPanel"]/div[3]/div/div/div/div/div/div/div/div[20]/div/div/p/a'))
-        ).click()
-
-    time.sleep(0.9)
-    # switch to the login tab
-    # https://www.browserstack.com/guide/how-to-switch-tabs-in-selenium-python
-    # prints parent window title
-    print("Parent window title: " + driver.title)
-
+def book(days_in_future, slot_time, driver):
     # get current window handle
     p = driver.current_window_handle
     print(f"Current window title: {p}")
 
-    # get first child window
-    chwd = driver.window_handles
-
-    for w in chwd:
-        # switch focus to child window
-        if w != p:
-            driver.switch_to.window(w)
-    print("Current window title: " + driver.title)
-
-    try:
-        WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, '/html/body/div/nav/div/a'))
-            ).click()
-    except Exception:
-        print("fail to click the LOGIN button")
-        pass
-
-    print("Current window title: " + driver.title)
-    # input the username
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.NAME,
-                                    'loginfmt'))
-        ).send_keys(f'{email}')
-
-    # click the next button
-    driver.find_element_by_id('idSIButton9').click()
-
-    # input the password
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.NAME,
-                                    'passwd'))
-        ).send_keys('Fanbi12345')
-
-    # click the next button
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.ID,
-                                    'idSIButton9'))
-        ).click()
-
-    # in case for the stay signed in page
-    try:
-        WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.ID,
-                                        'idSIButton9'))
-            ).click()
-    except TimeoutException:
-        pass
-
-    # click make a booking button
-    # input the password
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH,
-                                    "/html/body/div/main/div/div/div[2]/div/div[2]/form/input[2]"))
-        ).click()
-
-    print("Current window title: " + driver.title)
-
     # Search for badminton courts
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.ID,
-                                    "ctl00_ctl11_SearchTextBox"))
-        ).send_keys('Badminton 55 Mins')
+    for i in range(30):
+        # get first child window
+        chwd = driver.window_handles
 
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.ID,
-                                    "ctl00_ctl11_SearchButton1"))
-        ).click()
+        for w in chwd:
+            # switch focus to child window
+            if w != p:
+                driver.switch_to.window(w)
+        print("Current window title: " + driver.title)
+
+        try:
+            WebDriverWait(driver, 3).until(
+                EC.element_to_be_clickable((By.ID,
+                                            "ctl00_ctl11_SearchTextBox"))
+                ).send_keys('Badminton 55 Mins')
+
+            WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.ID,
+                                            "ctl00_ctl11_SearchButton1"))
+                ).click()
+        except TimeoutException:
+            print("Please go to the booking page.")
+            continue
+        else:
+            break
+
+    if i == 29:  # fail to go to the booking page.
+        print("Timeout, you could rerun the program.")
+        exit()
 
     # select the time slot
     current_time = datetime.strftime(datetime.now(), "%H:%M:%S")
@@ -184,7 +136,7 @@ def book(email, days_in_future, slot_time, driver):
                     ).click()
 
             except TimeoutException:
-                print("Fail to book the slot, you could try run the program again.")
+                print("Fail to book the slot, you could try to run the program again.")
             else:
                 print(f"Successfully robbed the badminton court (court {court_index})!!!")
         except TimeoutException:
@@ -205,30 +157,32 @@ def book(email, days_in_future, slot_time, driver):
         print("Good Bye")
 
 
-def main(username, email, password, days_in_future, slot_time):
+def main(days_in_future, slot_time):
     print("Let's book a badminton court. 🐶")
-    options = webdriver.ChromeOptions()
+    options = webdriver.ChromeOptions(
+
+        )
     options.add_argument('headless')  # comment out to toggle headless mode
 
     driver = webdriver.Chrome(ChromeDriverManager().install())
 
     driver.get("https://sussed.soton.ac.uk/")
 
-    login(username, password, driver)
-    book(email, days_in_future, slot_time, driver)
+    # login(username, password, driver)
+    book(days_in_future, slot_time, driver)
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('username', type=str, help='Username')
-    parser.add_argument('email', type=str, help='university email')
-    parser.add_argument('pw', type=str, help='Password')
+    # parser.add_argument('username', type=str, help='Username')
+    # parser.add_argument('email', type=str, help='university email')
+    # parser.add_argument('pw', type=str, help='Password')
     parser.add_argument('days_in_future', type=int,
                         help='Which date to book, e.g., 7 days later')
     parser.add_argument('time', type=str, help='time of the slot')
 
     args = parser.parse_args()
 
-    main(args.username, args.email, args.pw, args.days_in_future, args.time)
+    main(args.days_in_future, args.time)
