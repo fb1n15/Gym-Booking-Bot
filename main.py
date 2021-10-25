@@ -104,23 +104,14 @@ def book(days_in_future, slot_time, driver):
 
             for court_index in range(1, 5):
                 try:
-                    if len(slot_time) == 1:
-                        WebDriverWait(driver, 1).until(
-                            EC.element_to_be_clickable((By.CSS_SELECTOR,
-                                                        f"input[data-qa-id='button-ActivityID=HIFCASBADM ResourceID=0 Date={booking_date} Time=0{slot_time}:00 Availability= Available Court=Jubilee Court {court_index}']"))
-                            ).click()
+                    print("data-qa-id contains:")
+                    print(
+                            f"{slot_time}:00 Availability= Available Court=Jubilee Court {court_index}")
+                    WebDriverWait(driver, 1).until(
+                        EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                                    f"input[data-qa-id*='{slot_time}:00 Availability= Available Court=Jubilee Court {court_index}']"))
+                        ).click()
 
-                    elif len(slot_time) == 2:
-                        print("data-qa-id:")
-                        print(
-                            f"input[data-qa-id='button-ActivityID=HIFCASBADM ResourceID=0 Date={booking_date} Time={slot_time}:00 Availability= Available Court=Jubilee Court {court_index}']")
-                        WebDriverWait(driver, 1).until(
-                            EC.element_to_be_clickable((By.CSS_SELECTOR,
-                                                        f"input[data-qa-id='button-ActivityID=HIFCASBADM ResourceID=0 Date={booking_date} Time={slot_time}:00 Availability= Available Court=Jubilee Court {court_index}']"))
-                            ).click()
-                    else:
-                        print(
-                            "Wrong slot time format, input 19 if you want to book a 7 p.m. court")
                 except TimeoutException:
                     print(f"Fail to book court {court_index}.")
                     print(f"Try court {court_index + 1}.")
