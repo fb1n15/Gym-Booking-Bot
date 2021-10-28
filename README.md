@@ -26,3 +26,6 @@
 ### Create windows executable
 - `pyinstaller --onefile main.py`
 - [Source](https://datatofish.com/executable-pyinstaller/)
+
+## TODOs
+- Login from https://soton.leisurecloud.net/Connect/mrmlogin.aspx

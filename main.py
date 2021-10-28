@@ -148,7 +148,7 @@ def book(days_in_future, slot_time, driver):
         print("Good Bye")
 
 
-def main(days_in_future, slot_time):
+def main(days_in_future, slot_time, change_website=False):
     print("Let's book a badminton court. 🐶")
     options = webdriver.ChromeOptions(
 
@@ -157,7 +157,10 @@ def main(days_in_future, slot_time):
 
     driver = webdriver.Chrome(ChromeDriverManager().install())
 
-    driver.get("https://sussed.soton.ac.uk/")
+    if change_website:
+        driver.get("https://soton.leisurecloud.net/Connect/mrmlogin.aspx")
+    else:
+        driver.get("https://sussed.soton.ac.uk/")
 
     # login(username, password, driver)
     book(days_in_future, slot_time, driver)
@@ -173,7 +176,10 @@ if __name__ == '__main__':
     parser.add_argument('days_in_future', type=int,
                         help='Which date to book, e.g., 7 days later')
     parser.add_argument('time', type=str, help='time of the slot')
+    parser.add_argument('-y', '--change_website', action='store_true',
+                        help='to change the website address')
 
     args = parser.parse_args()
+    print(args.change_website)
 
-    main(args.days_in_future, args.time)
+    main(args.days_in_future, args.time, args.change_website)
