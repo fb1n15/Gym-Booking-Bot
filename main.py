@@ -102,7 +102,7 @@ def book(days_in_future, slot_time, driver):
 
             # select the court
 
-            for court_index in range(4, 0, -1):
+            for court_index in range(4, 9, -1):
                 try:
                     print("data-qa-id contains:")
                     print(
