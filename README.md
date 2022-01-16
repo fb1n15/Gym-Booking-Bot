@@ -30,5 +30,8 @@
 - `pyinstaller --onefile main.py`
 - [Source](https://datatofish.com/executable-pyinstaller/)
 
+### Create MacOS executable
+- [source](https://towardsdatascience.com/how-to-easily-convert-a-python-script-to-an-executable-file-exe-4966e253c7e9)
+
 ## TODOs
 - Login from https://soton.leisurecloud.net/Connect/mrmlogin.aspx

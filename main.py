@@ -102,7 +102,7 @@ def book(days_in_future, slot_time, driver):
 
             # select the court
 
-            for court_index in range(4, 9, -1):
+            for court_index in range(4, 8):
                 try:
                     print("data-qa-id contains:")
                     print(
@@ -112,7 +112,7 @@ def book(days_in_future, slot_time, driver):
                                                     f"input[data-qa-id*='{slot_time}:00 Availability= Available Court=Jubilee Court {court_index}']"))
                         ).click()
 
-                except TimeoutException:
+                except Exception:
                     print(f"Fail to book court {court_index}.")
                     print(f"Try court {court_index + 1}.")
                     continue
